@@ -1,17 +1,36 @@
 <script lang="ts">
     import Proie from "$lib/components/Proie.svelte";
-    import type { Pokemon as PType } from "$lib/types";
+    import { onMount } from "svelte";
+    import { rand } from "$lib/helpers";
 
     export let data;
-    const pokemons = data.pokemons;
-    const proies: PType[] = [];
-    const randomPokemon = pokemons[Math.floor(Math.random() * pokemons.length)];
 
-    for (const pokemon of pokemons) {
-        proies.push(pokemon);
+    $: pokemons = data.pokemons;
+    let ids: number[] = [];
+
+    function remove(bouclePosition: number) {
+        ids = ids.filter((_, idPosition) => {
+            return bouclePosition !== idPosition;
+        });
     }
+
+    onMount(() => {
+        const interval = setInterval(() => {
+            ids = [...ids, rand(pokemons.length)];
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    });
 </script>
 
-{#each proies.filter((_, i) => i < 3) as proie}
-    <Proie pokemon={proie} />
+{#each ids as id, bouclePosition}
+    <Proie
+        on:disapear={() => {
+            remove(bouclePosition);
+        }}
+        pokemon={pokemons[id]}
+        {position 
+    />
 {/each}
